@@ -109,10 +109,12 @@ async function onIdentify(event, settings) {
 		} else
 			throw new ValidationError('No braze_userid available for known user');
 
-		// <changes> Grab email value from Profile API and set to variable
+		// <changes> Grab email value from Profile API and set to variable and if there is no email in the profile api, use the email from the event
 		if (emailTraitName in profileApiResponse.traits) {
 			lastSeenEmail = profileApiResponse.traits[emailTraitName];
-		} else throw new ValidationError('No email available for known user');
+		} else {
+			lastSeenEmail = email;
+		}
 
 		/* For known users, there might also be an anonymous alias profile so we need to merge the two in this case using the identify endpoint: https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/ */
 		/* Note: If we try to ping the identify endpoint with a nonexistent user_alias the request will fail silently. It will be considered a 201 success but Braze will not ingest anything. We may see an error saying the alias_name must be a string since email is missing. This doesn't cause any issues though. */
@@ -287,7 +289,9 @@ async function onTrack(event, settings) {
 		// <changes> Grab email value from Profile API and set to variable
 		if (emailTraitName in profileApiResponse.traits) {
 			lastSeenEmail = profileApiResponse.traits[emailTraitName];
-		} else throw new ValidationError('No email available for known user');
+		} else {
+			lastSeenEmail = email;
+		}
 
 		/* For known users, there might also be an anonymous alias profile so we need to merge the two in this case using the identify endpoint: https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/ */
 		/* Note: If we try to ping the identify endpoint with a nonexistent user_alias the request will fail silently. It will be considered a 201 success but Braze will not ingest anything. We may see an error saying the alias_name must be a string since email is missing. This doesn't cause any issues though. */
